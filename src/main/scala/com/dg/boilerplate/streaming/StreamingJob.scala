@@ -60,8 +60,8 @@ object StreamingJob extends BaseStreaming {
     //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
     dataStream.keyBy(data=>{
-      data.value
-    }).window(TumblingEventTimeWindows.of(Time.seconds(5)))
+      data.key
+    }).window(TumblingEventTimeWindows.of(Time.seconds(30)))
 
     /* Simple map function to lowercase the data in the stream. This can be used in place of the
        process function if there is no state/timer involved */

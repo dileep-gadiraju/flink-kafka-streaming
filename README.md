@@ -50,12 +50,15 @@ Add the following text as input ABCD
 
 ## Understanding the source code
 
+```
 **BaseStreaming** has the simple boilerplate code for the Kafka serializer and de-serializer.  
-**StreamingJob** has the simple boilerplate code for a flink job.
+**StreamingJob** has the simple boilerplate code for a flink job. Call required methods from main to explore different types of jobs.
 **CaseHandlerProcessFunction** is a simple process function that splits the incoming data by space and to lowercase
 **KeyPrefixHandlerProcessFunction** is process function that splits the uncoming data by space and takes first 5 characters as key.
 **application.conf** has the input and output topic names that can be configured. It defaults to raw (input topic) and
 valid (output topic) along with other configuration
+
+```
 
 ## Benchmarking the code on your workstation
 
