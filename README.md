@@ -32,7 +32,7 @@ flink streaming job with kafka boilerplate code.
 6. Clone this repo into <ROOT_DIR> and cd flink-kafka-streaming to build and submit job using below commands
 ```
    1. mvn clean package
-   2. ../flink-1.13.1/bin/flink run ../flink-kafka-stream/target/flink-kafka-stream-1.0-SNAPSHOT.jar
+   2. ../flink-1.13.1/bin/flink run ../flink-kafka-streaming/target/flink-kafka-streaming-1.0-SNAPSHOT.jar
 ```
 
 7. Add messages to the raw topic by issuing the following commands from <ROOT_DIR>\<KAFKA_ROOT_DIR>.
@@ -53,6 +53,7 @@ Add the following text as input ABCD
 **BaseStreaming** has the simple boilerplate code for the Kafka serializer and de-serializer.  
 **StreamingJob** has the simple boilerplate code for a flink job.
 **CaseHandlerProcessFunction** is a simple process function that splits the incoming data by space and to lowercase
+**KeyPrefixHandlerProcessFunction** is process function that splits the uncoming data by space and takes first 5 characters as key.
 **application.conf** has the input and output topic names that can be configured. It defaults to raw (input topic) and
 valid (output topic) along with other configuration
 
@@ -71,4 +72,5 @@ valid (output topic) along with other configuration
 
 ```
    ../kafka_2.12-2.2.2/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group stream1
+   ../kafka_2.12-2.2.2/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group keyprefix
 ```
