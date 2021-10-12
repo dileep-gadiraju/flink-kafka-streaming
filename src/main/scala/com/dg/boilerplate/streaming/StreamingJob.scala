@@ -2,6 +2,8 @@ package com.dg.boilerplate.streaming
 
 import com.dg.boilerplate.core.{AppConfiguration, BaseStreaming, KafkaMsg}
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
+import org.apache.flink.streaming.api.windowing.time.Time
 
 /**
  * Streaming job that reads from a kafka stream, converts the value to lowercase and then streams the data to another kafka sink topic
@@ -9,9 +11,9 @@ import org.apache.flink.streaming.api.scala._
  */
 object StreamingJob extends BaseStreaming {
 
-  def main(args: Array[String]) {
+  def plainDatapipelineJob(): Unit ={
     val config = AppConfiguration.config
-    val jobName = "stream1-datapipeline-job"
+    val jobName = "plain-datapipeline-job"
 
     //Setting up the streaming environment
     implicit val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -38,5 +40,42 @@ object StreamingJob extends BaseStreaming {
     lowerCaseDs.addSink(kafkaDownStreamProducer).name("downstream")
 
     env.execute(jobName)
+  }
+
+  def keyedWindowDatapipelineJob(): Unit ={
+    val config = AppConfiguration.config
+    val jobName = "keyed-window-datapipeline-job"
+
+    //Setting up the streaming environment
+    implicit val env = StreamExecutionEnvironment.getExecutionEnvironment
+    env.setParallelism(config.getInt("flink.parallelism"))
+    env.enableCheckpointing(config.getInt("flink.checkpointing.interval"))
+
+    println(" Consumer Group>> "+config.getString(jobName + ".groupId"))
+    //Creating the kafka consumer and kafka producer with configurations
+    val kafkaConsumer = createStreamConsumer(config.getString(jobName + ".input.topic"), config.getString(jobName + ".groupId"))
+    //kafkaConsumer.setStartFromEarliest()
+    val kafkaProducer = createStreamProducer(config.getString(jobName + ".output.success.topic"))
+
+    //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
+    val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
+    dataStream.keyBy(data=>{
+      data.value
+    }).window(TumblingEventTimeWindows.of(Time.seconds(5)))
+
+    /* Simple map function to lowercase the data in the stream. This can be used in place of the
+       process function if there is no state/timer involved */
+    //val lowerCaseDs: DataStream[KafkaMsg] = dataStream.flatMap(data => data.value.split(" ")).map(data => KafkaMsg("", data.toLowerCase()))
+
+    val lowerCaseDs: DataStream[KafkaMsg] = dataStream.process(new KeyPrefixHandlerProcessFunction).name("tolowercase")
+
+    //Attaching the kafka producer as a sink
+    lowerCaseDs.addSink(kafkaProducer).name("tovalid")
+
+    env.execute(jobName)
+  }
+
+  def main(args: Array[String]) {
+    keyedWindowDatapipelineJob
   }
 }
