@@ -4,6 +4,7 @@ target/
 !**/src/main/**
 !**/src/test/**
 dependency-reduced-pom.xml
+.DSStore
 
 ### IntelliJ IDEA ###
 .idea
