@@ -61,7 +61,7 @@ object StreamingJob extends BaseStreaming {
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
     dataStream.keyBy(data=>{
       data.key
-    }).window(TumblingEventTimeWindows.of(Time.seconds(30)))
+    }).window(TumblingEventTimeWindows.of(Time.seconds(60)))
 
     /* Simple map function to lowercase the data in the stream. This can be used in place of the
        process function if there is no state/timer involved */
