@@ -1,9 +1,12 @@
 package com.dg.boilerplate.streaming
 
 import com.dg.boilerplate.core.{AppConfiguration, BaseStreaming, KafkaMsg}
+import org.apache.flink.api.common.JobExecutionResult
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
+
+import java.util.concurrent.TimeUnit
 
 /**
  * Streaming job that reads from a kafka stream, converts the value to lowercase and then streams the data to another kafka sink topic
@@ -24,7 +27,7 @@ object StreamingJob extends BaseStreaming {
     val kafkaConsumer = createStreamConsumer(config.getString(jobName + ".input.topic"), config.getString(jobName + ".groupId"))
     //kafkaConsumer.setStartFromEarliest()
     val kafkaProducer = createStreamProducer(config.getString(jobName + ".output.success.topic"))
-    val kafkaDownStreamProducer = createStreamProducer(config.getString(jobName + ".output.downstream.topic"))
+    //val kafkaDownStreamProducer = createStreamProducer(config.getString(jobName + ".output.downstream.topic"))
 
     //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
@@ -37,9 +40,9 @@ object StreamingJob extends BaseStreaming {
 
     //Attaching the kafka producer as a sink
     lowerCaseDs.addSink(kafkaProducer).name("tovalid")
-    lowerCaseDs.addSink(kafkaDownStreamProducer).name("downstream")
+    val jobResults =env.execute(jobName)
+    System.out.println("The job took " + jobResults.getNetRuntime(TimeUnit.SECONDS) + " to execute")
 
-    env.execute(jobName)
   }
 
   def keyedWindowDatapipelineJob(): Unit ={
@@ -69,10 +72,12 @@ object StreamingJob extends BaseStreaming {
 
     val lowerCaseDs: DataStream[KafkaMsg] = dataStream.process(new KeyPrefixHandlerProcessFunction).name("tolowercase")
 
+
     //Attaching the kafka producer as a sink
     lowerCaseDs.addSink(kafkaProducer).name("tovalid")
 
-    env.execute(jobName)
+    val jobResults =env.execute(jobName)
+    System.out.println("The job took " + jobResults.getNetRuntime(TimeUnit.SECONDS) + " to execute")
   }
 
   def main(args: Array[String]) {
