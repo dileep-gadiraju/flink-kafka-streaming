@@ -1,26 +1,32 @@
 package com.dg.boilerplate.metrics
 
-import com.dg.boilerplate.core.KafkaMsg
+import com.dg.boilerplate.core.{AppConfiguration, KafkaMsg}
 import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.metrics.{Counter, Histogram}
+import org.apache.flink.metrics.{Counter, Histogram, Meter, MeterView}
 import org.apache.flink.runtime.metrics.DescriptiveStatisticsHistogram
 
 class FlinkMetricsExposingMapFunction extends RichMapFunction[KafkaMsg, KafkaMsg] {
+  val config = AppConfiguration.config
+  val suffix = config.getString("metrics.suffix")
   @transient private var eventCounter: Counter = _
-  @transient private var valueHistogram: Histogram = _
+  @transient private var event10kHistogram: Histogram = _
+  @transient private var eventThroughPut: Meter = _
 
   override def open(parameters: Configuration): Unit = {
-    eventCounter = getRuntimeContext().getMetricGroup().counter("events")
-    valueHistogram =
+
+    eventCounter = getRuntimeContext().getMetricGroup().counter("events_count" + suffix)
+    eventThroughPut = getRuntimeContext().getMetricGroup().meter("events_throughput" + suffix, new MeterView(60))
+    event10kHistogram =
       getRuntimeContext()
         .getMetricGroup()
-        .histogram("value_histogram", new DescriptiveStatisticsHistogram(10000));
+        .histogram("events_histogram_10k" + suffix, new DescriptiveStatisticsHistogram(10000));
   }
 
   override def map(in: KafkaMsg): KafkaMsg = {
     eventCounter.inc()
-    valueHistogram.update(eventCounter.getCount)
+    event10kHistogram.update(eventCounter.getCount)
+    eventThroughPut.markEvent()
     in
   }
 }

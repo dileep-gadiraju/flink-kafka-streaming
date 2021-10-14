@@ -101,6 +101,8 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
     ```
    ```The [prometheus console](http://localhost:9090/graph) can be accessed once the flink cluster is started.```
 
+5. Refer **FlinkMetricsExposingMapFunction** for various metrics exposed. Refer sample screenshots in <ROOT_DIR>/flink-kafka-streaming/images
+
 ## Benchmarking the code on your workstation
 
 1. Insert messages into the raw topic using the below command. The below command would insert 10 mil messages of 100
@@ -112,7 +114,7 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
 ../kafka_2.12-2.2.2/bin/kafka-producer-perf-test.sh --topic raw --num-records 10000000 --record-size 100 --throughput 5000000 --producer-props bootstrap.servers=localhost:9092
 ```
 ## Feed data generated using UUIDMessageGenerator utility.
-
+Note: Run **UUIDMessageGenerator** to generate data.txt file.
 ```
 export KAFKA_HEAP_OPTS="-Xmx2G -Xms1G"
 ../kafka_2.12-2.2.2/bin/kafka-producer-perf-test.sh --topic raw --payload-file ./data.txt  --num-records 10000000 --throughput 5000000 --producer-props bootstrap.servers=localhost:9092 --payload-delimiter ,  
