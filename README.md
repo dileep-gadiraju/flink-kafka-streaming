@@ -3,7 +3,9 @@
 flink streaming job with kafka boilerplate code.
 
 # TODO:
-# Try flink windowing , stateful processing
+   Try flink windowing , stateful processing
+   https://flink.apache.org/features/2019/03/11/prometheus-monitoring.html
+
 ## Pre-requisites
 
 1. Install jdk 8
@@ -61,6 +63,32 @@ Add the following text as input ABCD
 valid (output topic) along with other configuration
 
 ```
+
+## Prometheus Metrics
+Flink comes with Prometheus library support. Use below steps to enable prometheus metrics.
+
+1. Make the PrometheusReporter jar available to the classpath of the Flink cluster (it comes with the Flink distribution):
+   ```
+      curl -o <ROOT_DIR>/<FLINK_ROOT_DIR>/lib/flink-metrics-prometheus_2.12-1.13.2.jar https://repo.maven.apache.org/maven2/org/apache/flink/flink-metrics-prometheus_2.12/1.13.2/flink-metrics-prometheus_2.12-1.13.2.jar
+      curl -o ../flink-1.13.1/lib/flink-metrics-prometheus_2.12-1.13.2.jar https://repo.maven.apache.org/maven2/org/apache/flink/flink-metrics-prometheus_2.12/1.13.2/flink-metrics-prometheus_2.12-1.13.2.jar
+   ```
+
+2. Configure flink with reporter in flink-config.yaml. All job managers and task managers will expose metrics on configured port.
+   add below entries into <ROOT_DIR>/<FLINK_ROOT_DIR>/conf/flink-config.yaml.
+   
+   ```
+    metrics.reporters: prom
+    metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+    metrics.reporter.prom.port: 9999
+   ```
+3. Bring up prometheus using below docker commands. Make sure docker deamon is up and running on your machine.
+
+   ```
+   docker run \
+    -p 9090:9090 \
+    -v <ROOT_DIR>/flink-kafka-streaming/metrics/prometheus.yml:/etc/prometheus/prometheus.yml \
+    prom/prometheus
+    ```
 
 ## Benchmarking the code on your workstation
 
