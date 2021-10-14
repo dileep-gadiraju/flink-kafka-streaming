@@ -1,10 +1,7 @@
 # flink-kafka-streaming
 
 flink streaming job with kafka boilerplate code.
-
-# TODO:
-   Try flink windowing , stateful processing
-   https://flink.apache.org/features/2019/03/11/prometheus-monitoring.html
+Note: All the commands in this document assumes that your terminal is in flink-kafka-streaming directory (this git repo cloned directory) 
 
 ## Pre-requisites
 
@@ -59,6 +56,7 @@ Add the following text as input ABCD
 **CaseHandlerProcessFunction** is a simple process function that splits the incoming data by space and to lowercase
 **KeyPrefixHandlerProcessFunction** is process function that splits the uncoming data by space and takes first 5 characters as key.
 **application.conf** has the input and output topic names that can be configured. It defaults to raw (input topic) and
+**FlinkMetricsExposingMapFunction** is Metrics exposing function.
 **UUIDMessageGenerator** UUID Data generating utility
 valid (output topic) along with other configuration
 
@@ -81,7 +79,12 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
     metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
     metrics.reporter.prom.port: 9999
    ```
-3. Bring up prometheus using below docker commands. Make sure docker deamon is up and running on your machine.
+   
+3. Restart flink cluster to enable prometheus support.
+   ```../flink-1.13.1/bin/stop-cluster.sh
+      ../flink-1.13.1/bin/start-cluster.sh
+   ```
+4. Bring up prometheus using below docker commands. Make sure docker deamon is up and running on your machine.
 
    ```
    docker run \
@@ -89,6 +92,14 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
     -v <ROOT_DIR>/flink-kafka-streaming/metrics/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
     ```
+   
+      ```
+   docker run \
+    -p 9090:9090 \
+    -v /Users/dileep.gadiraju/projects/learnings/flink-kafka-streaming/metrics/prometheus.yml:/etc/prometheus/prometheus.yml \
+    prom/prometheus
+    ```
+   ```The [prometheus console](http://localhost:9090/graph) can be accessed once the flink cluster is started.```
 
 ## Benchmarking the code on your workstation
 
@@ -103,6 +114,7 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
 ## Feed data generated using UUIDMessageGenerator utility.
 
 ```
+export KAFKA_HEAP_OPTS="-Xmx2G -Xms1G"
 ../kafka_2.12-2.2.2/bin/kafka-producer-perf-test.sh --topic raw --payload-file ./data.txt  --num-records 10000000 --throughput 5000000 --producer-props bootstrap.servers=localhost:9092 --payload-delimiter ,  
 ```
 
@@ -116,3 +128,8 @@ Refer benchmark details at <ROOT_DIR>/flink-kafka-streaming/BENCHMARK.MD
    ../kafka_2.12-2.2.2/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group stream1
    ../kafka_2.12-2.2.2/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group keyprefix
 ```
+
+
+# WIP Items
+1. Try flink windowing , stateful processing
+2. https://flink.apache.org/features/2019/03/11/prometheus-monitoring.html

@@ -1,6 +1,7 @@
 package com.dg.boilerplate.streaming
 
 import com.dg.boilerplate.core.{AppConfiguration, BaseStreaming, KafkaMsg}
+import com.dg.boilerplate.metrics.{FlinkMetricsExposingMapFunction}
 import org.apache.flink.api.common.JobExecutionResult
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
@@ -32,6 +33,9 @@ object StreamingJob extends BaseStreaming {
     //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
 
+    // Attaching flink Metrics function
+    dataStream.map(new FlinkMetricsExposingMapFunction())
+
     /* Simple map function to lowercase the data in the stream. This can be used in place of the
        process function if there is no state/timer involved */
     //val lowerCaseDs: DataStream[KafkaMsg] = dataStream.flatMap(data => data.value.split(" ")).map(data => KafkaMsg("", data.toLowerCase()))
@@ -62,9 +66,16 @@ object StreamingJob extends BaseStreaming {
 
     //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
-    dataStream.keyBy(data=>{
+
+    // Attaching flink Metrics function
+    dataStream.map(new FlinkMetricsExposingMapFunction())
+
+    dataStream
+      .keyBy(data=>{
       data.key
-    }).window(TumblingEventTimeWindows.of(Time.seconds(60)))
+    })
+      .window(TumblingEventTimeWindows.of(Time.seconds(60)))
+
 
     /* Simple map function to lowercase the data in the stream. This can be used in place of the
        process function if there is no state/timer involved */
