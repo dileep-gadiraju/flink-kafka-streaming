@@ -22,6 +22,13 @@ Note: All the commands in this document assumes that your terminal is in flink-k
     ../kafka_2.12-2.2.2/bin/kafka-topics.sh --create  --zookeeper localhost:2181 --replication-factor 1 --partitions 6 --topic valid
     ../kafka_2.12-2.2.2/bin/kafka-topics.sh --create  --zookeeper localhost:2181 --replication-factor 1 --partitions 6 --topic downstream
 ```
+  Delete topics commands:
+ 
+```
+   ../kafka_2.12-2.2.2/bin/kafka-topics.sh --delete  --zookeeper localhost:2181 --topic raw
+   ../kafka_2.12-2.2.2/bin/kafka-topics.sh --delete  --zookeeper localhost:2181 --topic valid
+```
+
 
 5. Download and unzip flink 1.13.1 into <ROOT_DIR>. Run below command to start flink cluster from <FLINK_ROOT_DIR>.
 ```
@@ -101,7 +108,7 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
     ```
    ```The [prometheus console](http://localhost:9090/graph) can be accessed once the flink cluster is started.```
 
-5. Refer **FlinkMetricsExposingMapFunction** for various metrics exposed. Refer sample screenshots in <ROOT_DIR>/flink-kafka-streaming/images
+5. Refer **FlinkMetricsExposingMapFunction** for various metrics exposed. Refer sample screenshots in <ROOT_DIR>/flink-kafka-streaming/metrics/images
 
 ## Benchmarking the code on your workstation
 
@@ -120,7 +127,7 @@ export KAFKA_HEAP_OPTS="-Xmx2G -Xms1G"
 ../kafka_2.12-2.2.2/bin/kafka-producer-perf-test.sh --topic raw --payload-file ./data.txt  --num-records 10000000 --throughput 5000000 --producer-props bootstrap.servers=localhost:9092 --payload-delimiter ,  
 ```
 
-Refer benchmark details at <ROOT_DIR>/flink-kafka-streaming/BENCHMARK.MD
+Refer benchmark details at <ROOT_DIR>/flink-kafka-streaming/metrics/Benchmarking.MD
 
 2. Execute the program so that it starts streaming from raw to valid.
 3. You can look at the lag for the consumer group (stream1 by default, can be changed in application.properties) of the

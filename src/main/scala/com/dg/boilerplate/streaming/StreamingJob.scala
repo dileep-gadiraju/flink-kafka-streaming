@@ -33,8 +33,6 @@ object StreamingJob extends BaseStreaming {
     //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
 
-    // Attaching flink Metrics function
-    dataStream.map(new FlinkMetricsExposingMapFunction())
 
     /* Simple map function to lowercase the data in the stream. This can be used in place of the
        process function if there is no state/timer involved */
@@ -44,6 +42,10 @@ object StreamingJob extends BaseStreaming {
 
     //Attaching the kafka producer as a sink
     lowerCaseDs.addSink(kafkaProducer).name("tovalid")
+
+    // Attaching flink Metrics function
+    dataStream.map(new FlinkMetricsExposingMapFunction())
+
     val jobResults =env.execute(jobName)
     System.out.println("The job took " + jobResults.getNetRuntime(TimeUnit.SECONDS) + " to execute")
 
@@ -64,11 +66,9 @@ object StreamingJob extends BaseStreaming {
     //kafkaConsumer.setStartFromEarliest()
     val kafkaProducer = createStreamProducer(config.getString(jobName + ".output.success.topic"))
 
+
     //Attaching the kafka consumer as a source. The data stream object represents the stream of events from the source.
     val dataStream: DataStream[KafkaMsg] = env.addSource(kafkaConsumer).name("rawdata")
-
-    // Attaching flink Metrics function
-    dataStream.map(new FlinkMetricsExposingMapFunction())
 
     dataStream
       .keyBy(data=>{
@@ -86,6 +86,9 @@ object StreamingJob extends BaseStreaming {
 
     //Attaching the kafka producer as a sink
     lowerCaseDs.addSink(kafkaProducer).name("tovalid")
+
+    // Attaching flink Metrics function
+    dataStream.map(new FlinkMetricsExposingMapFunction())
 
     val jobResults =env.execute(jobName)
     System.out.println("The job took " + jobResults.getNetRuntime(TimeUnit.SECONDS) + " to execute")
