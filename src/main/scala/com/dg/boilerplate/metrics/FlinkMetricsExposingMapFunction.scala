@@ -16,7 +16,7 @@ class FlinkMetricsExposingMapFunction extends RichMapFunction[KafkaMsg, KafkaMsg
   override def open(parameters: Configuration): Unit = {
 
     eventCounter = getRuntimeContext().getMetricGroup().counter("events_count" + suffix)
-    eventThroughPut = getRuntimeContext().getMetricGroup().meter("events_throughput" + suffix, new MeterView(60))
+    eventThroughPut = getRuntimeContext().getMetricGroup().meter("events_throughput" + suffix, new MeterView(5))
     event10kHistogram =
       getRuntimeContext()
         .getMetricGroup()
