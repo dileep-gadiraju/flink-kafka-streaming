@@ -22,6 +22,11 @@ Note: All the commands in this document assumes that your terminal is in flink-k
     ../kafka_2.12-2.2.2/bin/kafka-topics.sh --create  --zookeeper localhost:2181 --replication-factor 1 --partitions 6 --topic valid
     ../kafka_2.12-2.2.2/bin/kafka-topics.sh --create  --zookeeper localhost:2181 --replication-factor 1 --partitions 6 --topic downstream
 ```
+```
+    ../kafka_2.12-2.2.2/bin/kafka-topics.sh --create  --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic raw
+    ../kafka_2.12-2.2.2/bin/kafka-topics.sh --create  --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic valid
+```
+
   Delete topics commands:
  
 ```
@@ -109,7 +114,9 @@ Flink comes with Prometheus library support. Use below steps to enable prometheu
     ```
    ```The [prometheus console](http://localhost:9090/graph) can be accessed once the flink cluster is started.```
 
-5. Refer **FlinkMetricsExposingMapFunction** for various metrics exposed. Refer sample screenshots in <ROOT_DIR>/flink-kafka-streaming/metrics/images
+5. Refer **FlinkMetricsExposingMapFunction** for various metrics exposed. 
+   Refer sample screenshots in <ROOT_DIR>/flink-kafka-streaming/metrics/images captured from flink dashboard and prometheus dashboard.
+   
 
 ## Benchmarking the code on your workstation
 

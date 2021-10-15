@@ -20,7 +20,7 @@ class FlinkMetricsExposingMapFunction extends RichMapFunction[KafkaMsg, KafkaMsg
 
     eventCounter = getRuntimeContext().getMetricGroup().counter("events_count" + suffix)
     eventThroughPut = getRuntimeContext().getMetricGroup().meter("events_throughput" + suffix, new MeterView(5))
-    totalProcessingTime= getRuntimeContext().getMetricGroup().gauge[Long,SimpleGauge[Long]]("events_processing_time_secs"+ suffix,new SimpleGauge[Long]())
+    totalProcessingTime= getRuntimeContext().getMetricGroup().gauge[Long,SimpleGauge[Long]]("events_processing_time_ms"+ suffix,new SimpleGauge[Long]())
     startTime = System.currentTimeMillis()
 
     event10kHistogram =
@@ -33,7 +33,7 @@ class FlinkMetricsExposingMapFunction extends RichMapFunction[KafkaMsg, KafkaMsg
     eventCounter.inc()
     event10kHistogram.update(eventCounter.getCount)
     eventThroughPut.markEvent()
-    val timeLapsed = (System.currentTimeMillis() - startTime)/60
+    val timeLapsed = (System.currentTimeMillis() - startTime)
     totalProcessingTime.setValue(timeLapsed)
     in
   }
