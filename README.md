@@ -72,19 +72,20 @@ valid (output topic) along with other configuration
 ## Prometheus Metrics
 Flink comes with Prometheus library support. Use below steps to enable prometheus metrics.
 
-1. Make the PrometheusReporter jar available to the classpath of the Flink cluster (it comes with the Flink distribution):
-   ```
-      curl -o <ROOT_DIR>/<FLINK_ROOT_DIR>/lib/flink-metrics-prometheus_2.12-1.13.2.jar https://repo.maven.apache.org/maven2/org/apache/flink/flink-metrics-prometheus_2.12/1.13.2/flink-metrics-prometheus_2.12-1.13.2.jar
-      curl -o ../flink-1.13.1/lib/flink-metrics-prometheus_2.12-1.13.2.jar https://repo.maven.apache.org/maven2/org/apache/flink/flink-metrics-prometheus_2.12/1.13.2/flink-metrics-prometheus_2.12-1.13.2.jar
-   ```
+1. Make the PrometheusReporter jar available to the classpath of the Flink cluster (it comes with the Flink distribution).
+   Check in  <ROOT_DIR>/flink-kafka-streaming\plugins folder.
 
 2. Configure flink with reporter in flink-config.yaml. All job managers and task managers will expose metrics on configured port.
    add below entries into <ROOT_DIR>/<FLINK_ROOT_DIR>/conf/flink-config.yaml.
    
    ```
-    metrics.reporters: prom
-    metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
-    metrics.reporter.prom.port: 9999
+   metrics.reporters: prom
+   metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+   metrics.reporter.prom.port: 9250-9260
+   metrics.reporter.prom.host: localhost
+
+   metrics.reporter.jmx.factory.class: org.apache.flink.metrics.jmx.JMXReporterFactory
+   metrics.reporter.jmx.port: 8789
    ```
    
 3. Restart flink cluster to enable prometheus support.
