@@ -39,7 +39,7 @@ object StreamingJob extends BaseStreaming {
     //val lowerCaseDs: DataStream[KafkaMsg] = dataStream.flatMap(data => data.value.split(" ")).map(data => KafkaMsg("", data.toLowerCase()))
 
     val lowerCaseDs: DataStream[KafkaMsg] = dataStream.process(new CaseHandlerProcessFunction).name("tolowercase")
-    dataStream.windowAll(TumblingEventTimeWindows.of(Time.seconds(60)))
+    //dataStream.windowAll(TumblingEventTimeWindows.of(Time.seconds(60)))
     //Attaching the kafka producer as a sink
     lowerCaseDs.addSink(kafkaProducer).name("tovalid")
 
